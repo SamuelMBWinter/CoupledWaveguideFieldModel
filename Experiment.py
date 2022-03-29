@@ -36,10 +36,10 @@ Experiment1 = wg.WaveguidePairModel(
                 C
             )
 
-seperation_results = [Experiment1.RunSimulation(t_0, length, s, n=2048, t_range=[-100, 100], method="DOP853") for s in [WG_seperation[0]]]
+seperation_results = [Experiment1.RunSimulation(t_0, length, s, n=1024, t_range=[-20, 20], method="DOP853") for s in [WG_seperation[0]]]
 
 for res in seperation_results:
     res.PlotAll()
     res.PrintProperties()
 #    res.SaveAllImages()
-    res.WriteSpectrum(f"FU_pSeperation{res.GetSeperation()}Length{length}t100fs")
+#    res.WriteSpectrum(f"FU_pSeperation{res.GetSeperation()}Length{length}t100fs")

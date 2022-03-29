@@ -12,7 +12,7 @@ c = 299.792         # The speed of light  in [um ps^-1]
 # Functions
 
 @np.vectorize
-def gaussian(x, sigma=2, alpha=1, mu=0):
+def gaussian(x, sigma=0.5, alpha=1, mu=0):
     """
     Standard Gaussian function. Defualt to std. deviation of 1 and amplitude of 1.
     This function is vectorized.
@@ -339,4 +339,46 @@ class WaveguidePairModel:
         res = Result(t_0, z_d, length, seperation, tau, omega_axis, xi_axis, V, phase_factors)
         return res
 
+if __name__ == "__main__":
 
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from scipy.io import loadmat
+    import pandas as pd
+
+    t_0 = 0.1                # Approximate pulse duration : ps
+    length = 215
+
+    beta_f = 6.7260             # Propogation constant of the fundamental mode in WG1 : um^-1
+    beta_s = 12.7539            # Propogation constant of the higher order mode in WG1  
+    beta_p = 12.7579            # Propogation constant of the higher order mode in WG2 
+    beta_f1 = 0.007734          # Group velocity of the fundamental mode in WG1 : ps um^-1 
+    beta_s1 = 0.008836          # Group velocity of the higher order mode in WG1  
+    beta_p1 = 0.008723          # Group velocity of the higher order mode in WG2  
+    beta_f2 = 8.4535*10**-7     # Dispersion of the fundamental mode in WG1 ps^2 um^-1
+    beta_s2 = -2.1754*10**-7    # Dispersion of the higher order mode in WG1
+    beta_p2 = 2.620*10**-6     # Dispersion of the higher order mode in WG2 
+
+    df = pd.read_csv("seperationsweep.csv")
+
+    WG_seperation = np.flip(np.array(df["sep"]).flatten())
+    C = np.flip(np.array(df["coupling constant"]).flatten())
+
+    Experiment1 = WaveguidePairModel(
+                    beta_f, 
+                    beta_s, 
+                    beta_p, 
+                    beta_f1, 
+                    beta_s1, 
+                    beta_p1, 
+                    beta_f2, 
+                    beta_s2, 
+                    beta_p2, 
+                    WG_seperation, 
+                    C
+                )
+
+    seperation_results = [Experiment1.RunSimulation(t_0, length, s, n=1024, t_range=[-10, 150], method="DOP853") for s in [WG_seperation[0]]]
+
+    for res in seperation_results:
+        res.PlotAll()
